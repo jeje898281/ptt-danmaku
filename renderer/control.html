@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self'">
+<title>PTT 彈幕</title>
+<link rel="stylesheet" href="control.css">
+</head>
+<body>
+<header>
+  <div class="brand">
+    <span class="logo" aria-hidden="true">彈</span>
+    <div>
+      <h1>PTT 彈幕</h1>
+      <p id="summary">尚未追蹤文章</p>
+    </div>
+  </div>
+  <label class="switch" title="顯示或隱藏整個彈幕層">
+    <input id="overlayToggle" type="checkbox" checked>
+    <span class="track"><span class="thumb"></span></span>
+    <span id="overlayLabel" class="switch-label">彈幕顯示中</span>
+  </label>
+</header>
+
+<main>
+  <section class="card">
+    <form id="addForm" class="add-row" autocomplete="off">
+      <input id="addInput" type="text" spellcheck="false"
+             placeholder="貼上文章網址,或輸入看板名稱(例如 Tennis)" aria-label="文章網址或看板名稱">
+      <button id="addBtn" type="submit" class="primary">加入</button>
+    </form>
+    <div id="clipHint" class="clip-hint" hidden>
+      <span>剪貼簿裡有一篇 PTT 文章</span>
+      <button id="clipAdd" type="button" class="link">加入追蹤</button>
+      <button id="clipDismiss" type="button" class="link muted">略過</button>
+    </div>
+    <div id="boards" class="chips" aria-label="最近看過的看板"></div>
+    <p id="notice" class="notice" role="status" hidden></p>
+
+    <div id="boardPanel" class="board-panel" hidden>
+      <div class="board-head">
+        <strong id="boardTitle"></strong>
+        <button id="boardClose" type="button" class="link muted">關閉</button>
+      </div>
+      <ul id="boardList" class="board-list"></ul>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>追蹤中的文章 <span id="articleCount" class="count"></span></h2>
+    <ul id="articles" class="articles"></ul>
+    <p id="emptyArticles" class="empty">
+      還沒有追蹤任何文章。<br>貼上文章網址,或輸入看板名稱挑一篇 —— 不需要登入 PTT。
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>最新推文</h2>
+    <ul id="feed" class="feed"></ul>
+    <p id="emptyFeed" class="empty">有新推文時會出現在這裡,同時飄過螢幕。</p>
+  </section>
+
+  <section class="card">
+    <h2>彈幕外觀 <button id="demoBtn" type="button" class="ghost">播放測試彈幕</button></h2>
+    <label class="slider"><span>字體大小</span><input id="fontSize" type="range" min="16" max="72" step="1"><output id="fontSizeV"></output></label>
+    <label class="slider"><span>移動速度</span><input id="speed" type="range" min="60" max="500" step="10"><output id="speedV"></output></label>
+    <label class="slider"><span>不透明度</span><input id="opacity" type="range" min="20" max="100" step="5"><output id="opacityV"></output></label>
+    <label class="slider"><span>顯示範圍</span><input id="areaRatio" type="range" min="10" max="100" step="5"><output id="areaRatioV"></output></label>
+    <div class="checks">
+      <label><input id="showBoo" type="checkbox"> 顯示噓文</label>
+      <label><input id="showArrow" type="checkbox"> 顯示 → 回應</label>
+      <label><input id="showUser" type="checkbox"> 顯示推文者 ID</label>
+    </div>
+    <label class="field">
+      <span>不想看到的字詞</span>
+      <input id="blockWords" type="text" spellcheck="false" placeholder="用空白或逗號分隔,例如:劇透 簽賭">
+    </label>
+    <label id="displayField" class="field" hidden>
+      <span>彈幕顯示在</span>
+      <select id="displayId"></select>
+    </label>
+  </section>
+</main>
+
+<footer>
+  <span id="shortcutHint"></span>
+  <span id="version"></span>
+</footer>
+
+<script src="control.js"></script>
+</body>
+</html>
