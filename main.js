@@ -74,6 +74,7 @@ function createOverlay() {
     focusable: false,
     skipTaskbar: true,
     fullscreenable: false,
+    enableLargerThanScreen: true,
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       backgroundThrottling: false,
@@ -84,13 +85,16 @@ function createOverlay() {
   overlayWin.setVisibleOnAllWorkspaces(true, { visibleOnFullScreen: true });
   overlayWin.setIgnoreMouseEvents(true);
   overlayWin.loadFile(path.join(__dirname, 'renderer', 'overlay.html'));
-  overlayWin.once('ready-to-show', () => { if (overlayVisible) overlayWin.showInactive(); });
+  overlayWin.once('ready-to-show', () => {
+    if (overlayVisible) overlayWin.showInactive();
+    placeOverlay(); // macOS 顯示視窗時可能自己挪位置,顯示後再對齊一次
+  });
 }
 
 function setOverlayVisible(visible) {
   overlayVisible = !!visible;
   if (overlayWin && !overlayWin.isDestroyed()) {
-    if (overlayVisible) overlayWin.showInactive(); else overlayWin.hide();
+    if (overlayVisible) { overlayWin.showInactive(); placeOverlay(); } else overlayWin.hide();
   }
   store.data.overlayVisible = overlayVisible;
   store.save();
@@ -229,8 +233,10 @@ function registerIpc() {
   ipcMain.handle('demo', () => { if (!overlayVisible) setOverlayVisible(true); runDemo(); return true; });
 
   // 剪貼簿裡如果剛好是 PTT 文章網址,控制台會主動問要不要加入
-  ipcMain.handle('clipboard:article', () => {
-    const art = parseArticleUrl(clipboard.readText().trim().slice(0, 300));
+  ipcMain.handle('clipboard:article', async () => {
+    // 新版 Electron 的 readText 會回傳 Promise,舊版直接回傳字串;兩種都接
+    const text = String(await clipboard.readText() || '');
+    const art = parseArticleUrl(text.trim().slice(0, 300));
     return art && !manager.urls().includes(art.url) ? art.url : null;
   });
 }

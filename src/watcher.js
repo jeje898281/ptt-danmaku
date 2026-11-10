@@ -4,6 +4,7 @@ const { parseArticlePage, parsePushes } = require('./ptt');
 const { pttGet } = require('./http');
 
 const LONGPOLL_TIMEOUT_MS = 12000;   // 連線掛著等新推文的最長時間,逾時就主動再問一次
+const FIRST_CHECK_TIMEOUT_MS = 4000;  // 剛加入文章時第一次確認進度最多等多久
 const MIN_LOOP_INTERVAL_MS = 1000;   // 和 PTT 網頁版一樣,每輪至少間隔 1 秒
 const MAX_BACKOFF_MS = 30000;
 const REINIT_AFTER_FAILURES = 6;     // 連續失敗這麼多次就整篇重新載入
@@ -103,7 +104,8 @@ class ArticleWatcher extends EventEmitter {
           etag: null,
         };
         // 文章頁本身有快取,先用 long poll 把頁面之後的推文補齊
-        const lp = await this._longPoll(follow);
+        // 冷門文章的串流裡可能還沒有任何訊息,這一問會被掛著;不要讓使用者等太久
+        const lp = await this._longPoll(follow, FIRST_CHECK_TIMEOUT_MS);
         const caught = lp && lp.size > follow.size ? await this._fetchNew(follow, lp) : [];
         if (emitBacklog) {
           const all = page.pushes.concat(caught);
@@ -156,7 +158,7 @@ class ArticleWatcher extends EventEmitter {
   }
 
   /** 問伺服器目前文章大小。沒有變動(304 或逾時)回傳 null。 */
-  async _longPoll(follow) {
+  async _longPoll(follow, timeoutMs = LONGPOLL_TIMEOUT_MS) {
     const headers = {};
     if (follow.lastModified) {
       // 兩個標頭要一起送,伺服器才會把連線掛著等;少了 If-None-Match 會回 400
@@ -166,7 +168,7 @@ class ArticleWatcher extends EventEmitter {
     let res;
     try {
       res = await this._get(follow.longPollUrl, {
-        headers, timeoutMs: LONGPOLL_TIMEOUT_MS, signal: this._abort.signal,
+        headers, timeoutMs, signal: this._abort.signal,
       });
     } catch (err) {
       // 伺服器把連線掛到逾時通常代表這段時間沒有新推文。但實測偶爾會漏通知,

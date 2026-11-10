@@ -1,9 +1,8 @@
 node_modules/
 dist/
-release/
 .npm-cache/
 .DS_Store
 *.log
-backend/.venv/
-backend/__pycache__/
+# 舊版(PyPtt 後端)留下的本機檔案
+backend/
 *.zip
