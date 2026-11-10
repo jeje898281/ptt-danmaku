@@ -1,5 +1,10 @@
 # PTT 彈幕 (ptt-danmaku)
 
+[![build](https://github.com/jeje898281/ptt-danmaku/actions/workflows/build.yml/badge.svg)](https://github.com/jeje898281/ptt-danmaku/actions/workflows/build.yml)
+[![release](https://img.shields.io/github/v/release/jeje898281/ptt-danmaku)](https://github.com/jeje898281/ptt-danmaku/releases/latest)
+[![license](https://img.shields.io/github/license/jeje898281/ptt-danmaku)](LICENSE)
+![platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey)
+
 邊看直播,邊把 PTT 指定文章的最新推文用彈幕飄在螢幕最上層。支援 macOS 與 Windows,**不需要登入 PTT**。
 
 ## 怎麼用
@@ -24,7 +29,7 @@
 
 ## 下載與安裝
 
-到 [Releases](../../releases) 下載:
+到 [Releases](https://github.com/jeje898281/ptt-danmaku/releases/latest) 下載:
 
 - **macOS**:`PTT-Danmaku-<版本>-mac-arm64.dmg`(Apple 晶片)或 `-x64.dmg`(Intel)。
   App 沒有經過 Apple 公證,第一次開啟請在 Finder 對 App 按右鍵 →「打開」;若仍被擋下,執行
@@ -79,3 +84,15 @@ npm run dist:win     # 在 Windows 上產生安裝版與免安裝版
 ```
 
 推送 `v*` 標籤(例如 `v1.0.0`)時,GitHub Actions 會在 macOS 與 Windows 上各自測試、打包,並把成品附到該版本的 Release。
+
+## 參與貢獻
+
+歡迎開 [Issue](https://github.com/jeje898281/ptt-danmaku/issues) 或送 Pull Request,詳見 [CONTRIBUTING.md](CONTRIBUTING.md)。版本變更記錄在 [CHANGELOG.md](CHANGELOG.md)。
+
+## 免責聲明
+
+本專案為個人開發的非官方工具,與 PTT(批踢踢實業坊)無任何關係。推文內容的著作權屬於原作者;請遵守 PTT 站規,並避免以本工具對 PTT 伺服器造成過度負擔。
+
+## 授權
+
+[MIT](LICENSE) © jeje898281

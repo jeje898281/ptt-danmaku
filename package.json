@@ -4,6 +4,15 @@
   "description": "PTT 推文彈幕 overlay — 邊看直播邊看鄉民推文,不需要登入",
   "author": "jeje898281",
   "license": "MIT",
+  "homepage": "https://github.com/jeje898281/ptt-danmaku#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jeje898281/ptt-danmaku.git"
+  },
+  "bugs": {
+    "url": "https://github.com/jeje898281/ptt-danmaku/issues"
+  },
+  "keywords": ["ptt", "danmaku", "overlay", "electron", "彈幕"],
   "private": true,
   "main": "main.js",
   "scripts": {
