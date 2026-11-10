@@ -1,0 +1,2 @@
+PyPtt==2.1.3
+websockets==16.1
