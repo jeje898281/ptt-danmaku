@@ -1,13 +1,111 @@
-# PTT 彈幕 (ptt-danmaku)
+# PTT Danmaku (PTT 彈幕)
+
+**English** · [中文](#中文)
 
 [![build](https://github.com/jeje898281/ptt-danmaku/actions/workflows/build.yml/badge.svg)](https://github.com/jeje898281/ptt-danmaku/actions/workflows/build.yml)
 [![release](https://img.shields.io/github/v/release/jeje898281/ptt-danmaku)](https://github.com/jeje898281/ptt-danmaku/releases/latest)
 [![license](https://img.shields.io/github/license/jeje898281/ptt-danmaku)](LICENSE)
 ![platform](https://img.shields.io/badge/platform-macOS%20%7C%20Windows-lightgrey)
 
+Shows the latest comments from PTT threads as danmaku that scroll across the top of your screen while you watch a stream. Runs on macOS and Windows, and **does not need a PTT account**.
+
+## How to use
+
+1. Open the app. A control panel appears, together with an invisible overlay that covers the whole screen.
+2. Add the threads you want to follow, in either of two ways:
+   - Paste a `www.ptt.cc` thread URL and press Enter. If you copy a URL and switch back to the control panel, it offers to add it.
+   - Type a board name (for example `Tennis`) and pick a thread from its latest posts.
+3. Start your stream. New comments scroll across the screen, and mouse clicks pass through the overlay to whatever is underneath.
+
+Up to 8 threads can be followed at once, each with its own colour. The thread list and appearance settings are saved and restored the next time the app opens.
+
+| Action | How |
+| --- | --- |
+| Show or hide the overlay | `Cmd+Shift+D` (macOS) or `Ctrl+Shift+D` (Windows), the switch at the top right of the control panel, or the tray icon |
+| Preview the overlay | "Play test danmaku" |
+| Change the appearance | Font size, speed, opacity, display area, and whether to show boos, neutral comments and commenter IDs |
+| Filter content | "Words to hide", separated by spaces or commas |
+| Change screen | With two or more displays, choose which one shows the overlay |
+
+Closing the control panel quits the app.
+
+## Download
+
+Get the latest build from [Releases](https://github.com/jeje898281/ptt-danmaku/releases/latest):
+
+- **macOS**: `PTT-Danmaku-<version>-mac-arm64.dmg` (Apple silicon) or `-x64.dmg` (Intel).
+  The app is not notarized. On first launch, right-click it in Finder and choose Open. If macOS still blocks it, run
+  `xattr -cr "/Applications/PTT彈幕.app"` and open it again.
+- **Windows 10/11**: `...-win-x64-setup.exe` (installer) or `...-win-x64-portable.exe` (portable).
+  The executables are not code-signed. When SmartScreen appears, choose More info, then Run anyway.
+
+## Known limitations
+
+- Comments come from the PTT web interface, so only boards and threads visible there can be followed (hidden and friends-only boards cannot).
+- New comments usually appear within a few seconds. The PTT web server occasionally reports them late, in which case they arrive within about fifteen seconds.
+- Exclusive full-screen mode on Windows can hide the overlay. Switch the player or game to borderless or windowed full screen.
+- PTT does not provide live updates for very old threads; these are marked as not supporting live updates.
+
+## How it works
+
+PTT's web thread page already updates comments live. The app uses the same mechanism:
+
+1. Load the thread page to get the title, existing comments and the parameters for live updates.
+2. Long-poll `/v1/longpoll`; the server responds with the current size when the thread changes.
+3. Fetch the new part through `/poll/...`, parse the comments and send them to the overlay.
+
+Failed requests are retried with back-off, and a thread is reloaded after repeated failures. Everything runs in the Electron main process, with no separate backend, and never touches your PTT account.
+
+```
+main.js              windows, tray, shortcuts, IPC
+preload.js           safe API exposed to the pages
+src/ptt.js           parsing PTT pages (threads, comments, board lists)
+src/http.js          HTTP requests to www.ptt.cc
+src/watcher.js       long-polling loop for one thread
+src/manager.js       managing several threads and their colours
+src/store.js         settings and thread list storage
+renderer/            control panel and overlay pages
+```
+
+## Development
+
+Requires Node.js 22 or later.
+
+```bash
+npm install
+npm start            # run the app
+npm test             # unit tests
+npm run live-check   # follow a popular thread on the real PTT for 40 seconds to check the data source
+```
+
+Packaging:
+
+```bash
+npm run dist:mac     # build dmg / zip on macOS
+npm run dist:win     # build installer and portable exe on Windows
+```
+
+Pushing a `v*` tag (for example `v1.0.0`) makes GitHub Actions test and package the app on macOS and Windows and attach the builds to that release.
+
+## Contributing
+
+Issues and pull requests are welcome; see [CONTRIBUTING.md](CONTRIBUTING.md). Changes are recorded in [CHANGELOG.md](CHANGELOG.md). Both are written in Traditional Chinese.
+
+## Disclaimer
+
+This is an unofficial personal project and is not affiliated with PTT. Comments remain the copyright of their authors. Please follow PTT's rules and avoid putting excessive load on its servers.
+
+## License
+
+[MIT](LICENSE) © jeje898281
+
+---
+
+## 中文
+
 邊看直播,邊把 PTT 指定文章的最新推文用彈幕飄在螢幕最上層。支援 macOS 與 Windows,**不需要登入 PTT**。
 
-## 怎麼用
+### 怎麼用
 
 1. 開啟 App,會出現一個控制台視窗,以及一層看不見、蓋在整個螢幕上的彈幕層。
 2. 加入想追蹤的文章,兩種方式擇一:
@@ -27,7 +125,7 @@
 
 關閉控制台視窗就會結束 App。
 
-## 下載與安裝
+### 下載與安裝
 
 到 [Releases](https://github.com/jeje898281/ptt-danmaku/releases/latest) 下載:
 
@@ -37,14 +135,14 @@
 - **Windows 10/11**:`...-win-x64-setup.exe`(安裝版)或 `...-win-x64-portable.exe`(免安裝)。
   沒有程式碼簽章,SmartScreen 出現時選「其他資訊」→「仍要執行」。
 
-## 已知限制
+### 已知限制
 
 - 資料來源是 PTT 網頁版,所以只能追蹤網頁版看得到的看板與文章(隱板、好友板不行)。
 - 新推文通常幾秒內出現;PTT 網頁端偶爾會晚通知,最慢十幾秒內會補上。
 - Windows 的「獨占全螢幕」可能擋住彈幕,請把播放器或遊戲改成無邊框／視窗化全螢幕。
 - 太舊的文章 PTT 不提供即時更新,會顯示「不支援即時更新」。
 
-## 運作原理
+### 運作原理
 
 PTT 網頁版的文章頁本身就有「推文自動更新」功能。這個 App 用的是同一套機制:
 
@@ -65,7 +163,7 @@ src/store.js         設定與追蹤清單的儲存
 renderer/            控制台與彈幕層畫面
 ```
 
-## 開發
+### 開發
 
 需要 Node.js 22 以上。
 
@@ -85,14 +183,14 @@ npm run dist:win     # 在 Windows 上產生安裝版與免安裝版
 
 推送 `v*` 標籤(例如 `v1.0.0`)時,GitHub Actions 會在 macOS 與 Windows 上各自測試、打包,並把成品附到該版本的 Release。
 
-## 參與貢獻
+### 參與貢獻
 
 歡迎開 [Issue](https://github.com/jeje898281/ptt-danmaku/issues) 或送 Pull Request,詳見 [CONTRIBUTING.md](CONTRIBUTING.md)。版本變更記錄在 [CHANGELOG.md](CHANGELOG.md)。
 
-## 免責聲明
+### 免責聲明
 
 本專案為個人開發的非官方工具,與 PTT(批踢踢實業坊)無任何關係。推文內容的著作權屬於原作者;請遵守 PTT 站規,並避免以本工具對 PTT 伺服器造成過度負擔。
 
-## 授權
+### 授權
 
 [MIT](LICENSE) © jeje898281
